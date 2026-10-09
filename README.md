@@ -105,3 +105,11 @@ popup.*                  toolbar popup
 tools/build-extension.mjs  builds dist/ and the zip
 tools/extension-lib.mjs    desktop profile merge, rules.json -> declarativeNetRequest rules
 ```
+
+## License
+
+Copyright (C) 2026 srispace1645
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the [GNU General Public License](LICENSE) for more details.
