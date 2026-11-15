@@ -35,7 +35,12 @@ Chrome may warn at startup about developer-mode extensions. Close the warning; d
 
 **Guest only:**
 - **Sign-in:** YouTube's sign-in pages and endpoints are refused, but only when YouTube requests them. Gmail and other Google sign-ins in Chrome keep working.
-- **Wipe:** YouTube's cookies, storage and cache are wiped when its last tab closes or leaves YouTube, when Chrome starts, and on install. If you were signed in to YouTube in Chrome, installing signs you out of YouTube only.
+- **Wipe:** YouTube's storage and cache are wiped when its last tab closes or leaves YouTube, and when Chrome starts. If you were signed in to YouTube in Chrome, installing signs you out of YouTube only.
+- **Kept guest:** YouTube asks a brand-new guest to "sign in to confirm you're not a bot" before some videos, so YouTube's cookies (the guest ID) are kept between sessions.
+  - A new guest starts every 10 days, or with **Clean Start** in the popup. Clean Start reloads open YouTube tabs.
+  - The popup shows the guest's day ("day 3 of 10").
+  - Google sign-in cookies (`SID`, `LOGIN_INFO`, ...) are removed from YouTube the moment they appear, so the kept guest never becomes a signed-in session.
+  - If YouTube asks anyway, a note on the page explains it: watch any other video for a minute, then come back.
 - **History:** YouTube pages are deleted from Chrome's history as soon as they're added.
 
 ## Tubi
@@ -101,6 +106,7 @@ src/relay.js             passes bridge calls from the page to the service worker
 src/enforcement.js       removes YouTube's anti-adblock dialog
 src/tubi.js              Tubi: empties the ad list before the player reads it
 src/stats.js, health.js  30-day ad counts and revision detection
+src/guest.js             kept guest: 10-day renewal rule, sign-in cookie list
 popup.*                  toolbar popup
 tools/build-extension.mjs  builds dist/ and the zip
 tools/extension-lib.mjs    desktop profile merge, rules.json -> declarativeNetRequest rules

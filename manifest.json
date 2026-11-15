@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "TubeClean",
   "description": "Ad-free YouTube (guest only, no history) and ad-free Tubi. Strips ads from the video data before the player sees them.",
-  "version": "1.2",
+  "version": "1.3",
   "minimum_chrome_version": "111",
   "icons": {
     "16": "icons/icon16.png",
@@ -27,7 +27,8 @@
     "storage",
     "browsingData",
     "history",
-    "alarms"
+    "alarms",
+    "cookies"
   ],
   "host_permissions": [],
   "declarative_net_request": {
