@@ -1,8 +1,9 @@
-# TubeClean for Chrome: ad-free YouTube and Tubi
+# TubeClean for Chrome: ad-free YouTube, Tubi and Pluto TV
 
 TubeClean is a Chrome extension (Manifest V3) for laptops and desktops. It removes ads on:
 - **YouTube** (www.youtube.com), and keeps it guest-only, with no history.
 - **Tubi** (tubitv.com).
+- **Pluto TV** (pluto.tv), on-demand titles.
 
 It also works in other Chromium browsers such as Microsoft Edge. It doesn't work in the DuckDuckGo browser, which doesn't support extensions.
 
@@ -48,7 +49,18 @@ Chrome may warn at startup about developer-mode extensions. Close the warning; d
 Tubi doesn't stitch ads into the movie. Before each ad break, its player asks Tubi's ad service (Rainmaker) for a list of ads, then plays them around the movie.
 - **How it's blocked:** `src/tubi.js` empties that list as the player reads it, so the player has nothing to play and carries on with the movie.
 - **Ad-blocker check:** Tubi's check (`mcdn.tubitv.com/js/ads.js`) is left alone, so the site still sees "ads allowed".
+- **Ad networks:** requests from Tubi pages to known ad networks and Tubi's ad servers (`blockDomains` in `tubi.json`) are refused.
 - **Guest mode:** Tubi isn't wiped and sign-in isn't blocked; those are YouTube-only.
+
+## Pluto TV
+
+Pluto stitches its ads into the video. A title's playlist (a DASH `.mpd` file) lists the movie in pieces, with ad pieces in between. A separate schedule (`session.json`) drives the player's ad countdown and locks its controls during a break.
+- **How it's blocked:** `src/pluto.js` removes the ad pieces from both, and re-times the movie's own pieces to follow each other, so the movie plays straight through. Tested on *The Ring*: 46–51 ads, about 22 minutes, were removed from a 2 h 17 min stream.
+- **Live channels** are left alone.
+- **Ad networks:** requests from Pluto pages to known ad networks and its pause-screen ad images (`blockDomains` in `pluto.json`) are refused.
+- **Guest mode:** none; Pluto isn't wiped.
+
+This replaces the separate "Tubi, Pluto & YouTube Ad Blocker" extension. Don't run both: that one blocks YouTube's bot check (`api/stats/atr`), which makes YouTube ask you to sign in.
 
 ## Popup and badge
 
@@ -71,6 +83,7 @@ Sites change. When something stops matching, the popup shows **Blocker needs rev
 | `AD_UNDETECTED` | New ad-like fields in YouTube's video data | `adDataKeys` or `ignoreAdLikeKeys` |
 | `SITE_CHANGED` | YouTube showed its ad-blocker warning | `enforcementSelectors`, `hideSelectors` |
 | `TUBI_CHANGED` | Tubi's ad-service answer changed, or a title played without one | `tubi.json` |
+| `PLUTO_CHANGED` | Pluto's playlist or schedule format changed | `pluto.json` |
 
 To revise:
 1. Inspect the site with DevTools (Elements for selectors, Network for requests).
@@ -91,12 +104,14 @@ They check:
 - the desktop profile
 - the stats and health monitor
 - the Tubi blocker, fed ad lists in Tubi's own format
+- the Pluto blocker, fed playlists and schedules shaped like Pluto's
 
 ## Layout
 
 ```
 manifest.json            extension manifest; the build fills in site matches and permissions
-tubi.json                Tubi's ad-service patterns
+tubi.json                Tubi's ad-service patterns and ad domains
+pluto.json               Pluto's playlist patterns and ad domains
 shared/rules.json        YouTube rules (shared with the app; "desktop" section for this extension)
 shared/prune.js          YouTube layer 4: strips ad data at document start
 shared/adskip.js         YouTube layers 2 + 3, health probes, per-video counting
@@ -105,6 +120,7 @@ src/bridge-shim.js       stands in for the app's TubeCleanBridge in the page
 src/relay.js             passes bridge calls from the page to the service worker
 src/enforcement.js       removes YouTube's anti-adblock dialog
 src/tubi.js              Tubi: empties the ad list before the player reads it
+src/pluto.js             Pluto TV: removes ad pieces from on-demand playlists and the player schedule
 src/stats.js, health.js  30-day ad counts and revision detection
 src/guest.js             kept guest: 10-day renewal rule, sign-in cookie list
 popup.*                  toolbar popup
