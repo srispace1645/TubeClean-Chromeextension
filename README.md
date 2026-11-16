@@ -7,7 +7,9 @@ TubeClean is a Chrome extension (Manifest V3) for laptops and desktops. It remov
 
 It also works in other Chromium browsers such as Microsoft Edge. It doesn't work in the DuckDuckGo browser, which doesn't support extensions.
 
-It makes no network requests of its own and uses no remote servers. The only thing it stores is daily ad-block counts.
+It makes no network requests of its own and uses no remote servers.
+
+Sites can't see it or fake its counts. Its page scripts are built into one bundle per site (`page-youtube.js`, `page-tubi.js`, `page-pluto.js`), with the rules and the bridge kept inside the bundle rather than on `window`. The bridge talks to the extension over a private link: an element never put in the page, handed to `src/relay.js` before any of the site's own scripts run. The only thing it stores is daily ad-block counts.
 
 ## Install
 
@@ -105,6 +107,7 @@ They check:
 - the stats and health monitor
 - the Tubi blocker, fed ad lists in Tubi's own format
 - the Pluto blocker, fed playlists and schedules shaped like Pluto's
+- the page bundles: no TubeClean names on `window`, and the bridge only offers its private link
 
 ## Layout
 
@@ -117,7 +120,7 @@ shared/prune.js          YouTube layer 4: strips ad data at document start
 shared/adskip.js         YouTube layers 2 + 3, health probes, per-video counting
 src/background.js        service worker: stats, health, badge, YouTube guest-only wipe
 src/bridge-shim.js       stands in for the app's TubeCleanBridge in the page
-src/relay.js             passes bridge calls from the page to the service worker
+src/relay.js             passes bridge calls from the page to the service worker over a private link
 src/enforcement.js       removes YouTube's anti-adblock dialog
 src/tubi.js              Tubi: empties the ad list before the player reads it
 src/pluto.js             Pluto TV: removes ad pieces from on-demand playlists and the player schedule
